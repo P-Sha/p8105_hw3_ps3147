@@ -84,5 +84,26 @@ instacart %>%
   )
 ```
 
+## Problem 2
+
+Read and tidy the accelerometer data.
+
+```{r}
+accel_df = 
+  read_csv("./data/accel_data.csv") %>% 
+   pivot_longer(
+    activity.1:activity.1440,
+    names_to = "min_of_the_day",
+    names_prefix = "activity.",
+    values_to = "activity_count"
+  )  %>% 
+  mutate(
+    min_of_the_day = as.numeric(min_of_the_day),
+    day = recode(day,0 = "Sunday", 1 = "Monday", 2 = "Tuesday", 3 = "Wednesday", 4 = "Thursday", 5 = "Friday", 6 = "Satruday") %>% 
+      
+         (day = ifelse(day = "Saturday" | "Sunday", "weekend", "weekday" ))
+  )
+```
+
 
 
