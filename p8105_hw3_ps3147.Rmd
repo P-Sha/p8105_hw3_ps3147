@@ -1,21 +1,88 @@
 ---
-title: "Simple document"
-output: html_document
+title: "homework 3"
+author: Purnima Sharma
+date: "October 6, 2020"
+output: github_document
 ---
 
-I'm an R Markdown document! 
+```{r setup, include = FALSE}
+library(tidyverse)
+library(p8105.datasets)
 
-# Section 1
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,          
+  out.width = "90%"      
+)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
-Here's a **code chunk** that samples from 
-a _normal distribution_:
+options(
+  ggplot2.continuous.colour = "viridis", # to override ggplot default colors.
+  ggplot2.continuous.fill = "viridis"
+)
 
-```{r}
-samp = rnorm(100)
-length(samp)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
-# Section 2
+## Problem 1
 
-I can take the mean of the sample, too!
-The mean is `r mean(samp)`.
+```{r load data}
+data("instacart")
+```
+
+This dataset contains `r nrow(instacart)` rows and `r ncol(instacart)` columns.
+
+Observations are the level of items in orders by a user. There are user / order variables: user ID, order ID, order day, and order hour. There are also item variables: name, aisle, department, and some numeric codes. 
+
+How many aisles, and which are most items from?
+
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+  arrange(desc(n))
+```
+
+Plot of #of items in each aisle, for aisles with more than 10,000 items.
+
+```{r}
+instacart %>% 
+  count(aisle) %>%
+  filter(n > 10000) %>%
+  mutate(
+    aisle = factor(aisle),
+    aisle = fct_reorder(aisle, n)
+  ) %>% 
+  ggplot(aes(x = aisle, y = n)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+```
+
+Table of 3 most popular items in given aisles.
+
+```{r}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits" )) %>% 
+   group_by(aisle) %>% 
+  count(product_name) %>% 
+   mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(aisle, rank) %>% 
+  knitr::kable()
+```
+
+Table of mean hour of the day for order of given two products:Apples vs ice cream
+
+```{r}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_hour = mean(order_hour_of_day)) %>% 
+  pivot_wider(
+    names_from = order_dow,
+    values_from = mean_hour
+  )
+```
+
+
+
