@@ -99,11 +99,52 @@ accel_df =
   )  %>% 
   mutate(
     min_of_the_day = as.numeric(min_of_the_day),
-    day = recode(day,0 = "Sunday", 1 = "Monday", 2 = "Tuesday", 3 = "Wednesday", 4 = "Thursday", 5 = "Friday", 6 = "Satruday") %>% 
-      
-         (day = ifelse(day = "Saturday" | "Sunday", "weekend", "weekday" ))
+    day = factor(day)
+  ) %>% 
+  mutate(
+  day_type = recode(day,"Saturday" = "weekend", "Sunday" = "weekend", "Monday" = "weekday", "Tuesday" = "weekday","Wednesday" = "weekday","Thursday" = "weekday","Friday" = "weekday")
   )
 ```
+
+This dataset based on "accelerometer data" contains `r nrow(accel_df)` rows and `r ncol(accel_df)` columns. The dataset consists information on 5 weeks of recorded activity counts based on an accelerometer activity, by the minute of each day. The activity count ranges from `r summarise(accel_df, min(activity_count))` to `r summarise(accel_df, max(activity_count))`.
+
+Table of activity per day.
+
+```{r}
+accel_df %>%
+ ## day = fct_reorder(day)##
+  group_by(week, day) %>% 
+    summarize(total_daily_activity = sum(activity_count)) %>% 
+  pivot_wider(
+    names_from = "day",
+    values_from = "total_daily_activity"
+  )
+```
+
+There seems to be least activity on Saturdays in weeks 4 and 5. Middle of the weeks on Tuesdays through Thursdays showed the most consistent high activity counts.
+
+Graph of 24-hr activity for each day.
+
+```{r}
+accel_df %>% 
+  group_by(day_id) %>% 
+  ggplot(aes(x = min_of_the_day, y = activity_count, color = day)) + 
+  geom_line(alpha = .5) + 
+  labs(
+    title = "Activity plot",
+    x = "Minutes of the day",
+    y = "Activity count"
+     ) +
+  theme(legend.position = "bottom")
+```
+
+The graphs seems fairly consistent in pattern for all given days in a week. Starting at 0 min, indicating midnight, there seems to be minimal activity count up to roughly 6- 7am. Activity seems to peak in the morning hours, and the again late in the evening. There were a few days with more daytime activity tha usual.
+
+
+## Problem 3
+
+
+
 
 
 
