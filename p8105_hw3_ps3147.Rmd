@@ -104,6 +104,9 @@ accel_df =
   mutate(
   day_type = recode(day,"Saturday" = "weekend", "Sunday" = "weekend", "Monday" = "weekday", "Tuesday" = "weekday","Wednesday" = "weekday","Thursday" = "weekday","Friday" = "weekday")
   )
+accel_df =
+   mutate(accel_df,
+   day = fct_relevel(day, "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
 ```
 
 This dataset based on "accelerometer data" contains `r nrow(accel_df)` rows and `r ncol(accel_df)` columns. The dataset consists information on 5 weeks of recorded activity counts based on an accelerometer activity, by the minute of each day. The activity count ranges from `r summarise(accel_df, min(activity_count))` to `r summarise(accel_df, max(activity_count))`.
@@ -112,7 +115,6 @@ Table of activity per day.
 
 ```{r}
 accel_df %>%
- ## day = fct_reorder(day)##
   group_by(week, day) %>% 
     summarize(total_daily_activity = sum(activity_count)) %>% 
   pivot_wider(
@@ -127,14 +129,15 @@ Graph of 24-hr activity for each day.
 
 ```{r}
 accel_df %>% 
-  group_by(day_id) %>% 
+   group_by(day_id) %>% 
   ggplot(aes(x = min_of_the_day, y = activity_count, color = day)) + 
-  geom_line(alpha = .5) + 
+  geom_line(alpha = .4) + 
   labs(
     title = "Activity plot",
     x = "Minutes of the day",
     y = "Activity count"
      ) +
+  geom_smooth(aes(group = day), se = FALSE)
   theme(legend.position = "bottom")
 ```
 
