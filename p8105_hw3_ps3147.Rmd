@@ -197,6 +197,24 @@ noaa_df %>%
 
 Two-panel plot.
 
+```{r}
+noaa_df %>%
+   filter(month %in% c("January", "July")) %>% 
+  group_by(id, year, month) %>% 
+  drop_na(tmax) %>% 
+   mutate(
+    mean_tmax = mean(tmax)) %>% 
+  ggplot(aes(x = year, y = mean_tmax, group = id, color = id)) +
+  geom_point() +
+  geom_path() +
+  facet_grid(.~ month) +
+  labs(title = "average maximum temperatures for January and July", x = "year", y = "average maximum temperature (C)") +
+  theme(legend.position = "none")
+```
+
+The plot shows distinct difference between the average maximum temperatures in January and July over all the weather stations, every year. As expected ,average temperature in January was much lower than in July. Other than the two colder than usual recording in January of early 1980's and 2005, and again in two different years in July, the temperatures were fairly consistent between a certain range. 
+
+
 
 
 
