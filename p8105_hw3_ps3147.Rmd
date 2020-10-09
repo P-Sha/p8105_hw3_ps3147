@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include = FALSE}
 library(tidyverse)
 library(p8105.datasets)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -214,6 +215,29 @@ noaa_df %>%
 
 The plot shows distinct difference between the average maximum temperatures in January and July over all the weather stations, every year. As expected ,average temperature in January was much lower than in July. Other than the two colder than usual recording in January of early 1980's and 2005, and again in two different years in July, the temperatures were fairly consistent between a certain range. 
 
+Plot: tmax vs tmin, and yearly snowfall.
+
+```{r}
+tmax_tmin_plot =
+noaa_df %>%
+  ggplot(aes(x = tmin, y = tmax, color = id)) + 
+  geom_boxplot() +
+  labs(title = "maximum versus minimum recorded temperatures", x = "minimum temperatures (C)", y = "maximum temperatures (C)") +
+   theme(legend.position = "none")
+
+snowfall_plot = 
+  noaa_df %>%
+  group_by(year) %>% 
+   filter(snow > 0) %>%
+  filter(snow < 100) %>%
+  ggplot(aes(x = year, y = snow, color = year)) + 
+  geom_boxplot() + 
+  labs(title = "Yearly snowfall", x = "Year", y = "snowfall (mm)") +
+  theme(legend.position = "none")
+  
+tmax_tmin_plot / snowfall_plot
+
+```
 
 
 
