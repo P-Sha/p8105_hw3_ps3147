@@ -1,7 +1,7 @@
 ---
 title: "homework 3"
 author: Purnima Sharma
-date: "October 6, 2020"
+date: "October 10, 2020"
 output: github_document
 ---
 
@@ -72,7 +72,7 @@ instacart %>%
   knitr::kable()
 ```
 
-Table of mean hour of the day for order of given two products:Apples vs ice cream
+Table of mean hour_of_the_day for order of given two products:Apples vs ice cream
 
 ```{r}
 instacart %>% 
@@ -142,7 +142,7 @@ accel_df %>%
   theme(legend.position = "bottom")
 ```
 
-The graphs seems fairly consistent in pattern for all given days in a week. Starting at 0 min, indicating midnight, there seems to be minimal activity count up to roughly 6- 7am. Activity seems to peak in the morning hours, and the again late in the evening. There were a few days with more daytime activity tha usual.
+The graphs seems fairly consistent in pattern for all given days in a week. Starting at 0 min, indicating midnight, there seems to be minimal activity count up to roughly 6- 7am. Activity seems to peak in the morning hours, and then again later in the evening. There were a few days with more daytime activity than usual.
 
 
 ## Problem 3
@@ -199,6 +199,7 @@ noaa_df %>%
 Two-panel plot.
 
 ```{r}
+tmax_Jan_July_plot =
 noaa_df %>%
    filter(month %in% c("January", "July")) %>% 
   group_by(id, year, month) %>% 
@@ -206,14 +207,16 @@ noaa_df %>%
    mutate(
     mean_tmax = mean(tmax)) %>% 
   ggplot(aes(x = year, y = mean_tmax, group = id, color = id)) +
-  geom_point() +
+  geom_point(aes(alpha = 0.5)) +
   geom_path() +
   facet_grid(.~ month) +
   labs(title = "average maximum temperatures for January and July", x = "year", y = "average maximum temperature (C)") +
   theme(legend.position = "none")
+
+ggsave("./results/tmax_Jan_July_plot.pdf", tmax_Jan_July_plot, width = 6, height = 3)
 ```
 
-The plot shows distinct difference between the average maximum temperatures in January and July over all the weather stations, every year. As expected ,average temperature in January was much lower than in July. Other than the two colder than usual recording in January of early 1980's and 2005, and again in two different years in July, the temperatures were fairly consistent between a certain range. 
+The plot shows distinct difference between the average maximum temperatures in January and July over all the weather stations, for each record year between `r noaa_df %>% select(year) %>% min()` and `r noaa_df %>% select(year) %>% max()`. As expected, average temperature in January was much lower than in July. Other than the two colder than usual recordings in January of early 1980's and 2005, and again in two different years in July, the temperatures were fairly consistent between a certain range. 
 
 Plot: tmax vs tmin, and yearly snowfall.
 
@@ -227,16 +230,19 @@ noaa_df %>%
 
 snowfall_plot = 
   noaa_df %>%
-  group_by(year) %>% 
    filter(snow > 0) %>%
-  filter(snow < 100) %>%
-  ggplot(aes(x = year, y = snow, color = year)) + 
+   filter(snow < 100) %>%
+   mutate(
+     year = as.factor(year)) %>% 
+     ggplot(aes(x = year, y = snow, color = year)) + 
   geom_boxplot() + 
   labs(title = "Yearly snowfall", x = "Year", y = "snowfall (mm)") +
+  scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
   theme(legend.position = "none")
   
-tmax_tmin_plot / snowfall_plot
+patchwork_plot = tmax_tmin_plot / snowfall_plot
 
+ggsave("./results/patchwork_plot.pdf", patchwork_plot, width = 8, height = 5)
 ```
 
 
